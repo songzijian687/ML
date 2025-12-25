@@ -18,9 +18,15 @@ import {
   Palette,
   BrickWall,
   Layers as LayersIcon,
-  CircleDot
+  CircleDot,
+  Globe,
+  ImagePlus,
+  Disc,
+  Target,
+  Minus,
+  Lightbulb
 } from 'lucide-react';
-import { LightingProfile, RepairOption, TextureOption } from './types';
+import { LightingProfile, RepairOption, FixtureOption } from './types';
 
 export interface QuickEdit {
   id: string;
@@ -57,51 +63,41 @@ export const REPAIR_OPTIONS: RepairOption[] = [
   {
     id: 'denoise',
     label: '画质去噪',
-    prompt: 'Reduce render noise and grain while preserving sharp edges.'
+    prompt: 'Reduce render noise and grain while preserving sharp edges.',
+    icon: 'Waves'
   },
   {
     id: 'upscale',
     label: '细节重构',
-    prompt: 'Intelligently add realistic micro-details to the surfaces and geometry for a higher-fidelity look.'
+    prompt: 'Intelligently add realistic micro-details to the surfaces and geometry for a higher-fidelity look.',
+    icon: 'Wand2'
   }
 ];
 
-export const TEXTURE_OPTIONS: TextureOption[] = [
+export const FIXTURE_OPTIONS: FixtureOption[] = [
   {
-    id: 'marble',
-    label: '爵士白大理石',
-    prompt: 'Identify all stone surfaces and replace them with premium Volakas marble texture, featuring elegant grey veins and a polished finish.',
-    icon: 'Grid'
+    id: 'downlight',
+    label: '嵌入式筒灯',
+    prompt: 'Install realistic recessed downlights in the ceiling, arranged in a logical architectural grid pattern. Ensure they cast natural downward cones of light.',
+    icon: 'Disc'
   },
   {
-    id: 'walnut',
-    label: '北美黑胡桃',
-    prompt: 'Identify all wooden elements and replace their textures with high-end North American Black Walnut wood grain, semi-gloss finish.',
-    icon: 'Box'
+    id: 'spotlight',
+    label: '重点射灯',
+    prompt: 'Add adjustable track spotlights or directional recessed spots to highlight key furniture, artwork, or wall textures with focused beams.',
+    icon: 'Target'
   },
   {
-    id: 'concrete',
-    label: '清水混凝土',
-    prompt: 'Transform the wall surfaces into smooth, architectural-grade fair-faced concrete with subtle formwork patterns.',
-    icon: 'LayersIcon'
+    id: 'light-strip',
+    label: '线性灯带',
+    prompt: 'Install concealed LED light strips (cove lighting) along ceiling edges, under cabinets, or behind mirrors to create a soft, modern ambient glow.',
+    icon: 'Minus'
   },
   {
-    id: 'brass',
-    label: '拉丝黄铜',
-    prompt: 'Identify metallic components and replace them with sophisticated brushed brass texture, including realistic anisotropic highlights.',
-    icon: 'CircleDot'
-  },
-  {
-    id: 'velvet',
-    label: '丝绒布艺',
-    prompt: 'Identify fabric surfaces (sofas, curtains) and replace them with luxurious heavy velvet texture in a neutral tone.',
-    icon: 'Feather'
-  },
-  {
-    id: 'terrazzo',
-    label: '极简磨石子',
-    prompt: 'Replace the flooring with modern fine-grained white terrazzo texture containing subtle grey and beige aggregates.',
-    icon: 'BrickWall'
+    id: 'pendant',
+    label: '艺术吊灯',
+    prompt: 'Hang a stylish modern pendant light fixture in the center of the space or over key areas like tables.',
+    icon: 'Lightbulb'
   }
 ];
 
@@ -138,5 +134,11 @@ export const ICON_MAP: Record<string, React.ReactNode> = {
   Palette: <Palette className="w-4 h-4" />,
   BrickWall: <BrickWall className="w-4 h-4" />,
   LayersIcon: <LayersIcon className="w-4 h-4" />,
-  CircleDot: <CircleDot className="w-4 h-4" />
+  CircleDot: <CircleDot className="w-4 h-4" />,
+  Globe: <Globe className="w-4 h-4" />,
+  ImagePlus: <ImagePlus className="w-4 h-4" />,
+  Disc: <Disc className="w-4 h-4" />,
+  Target: <Target className="w-4 h-4" />,
+  Minus: <Minus className="w-4 h-4" />,
+  Lightbulb: <Lightbulb className="w-4 h-4" />
 };

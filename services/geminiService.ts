@@ -6,50 +6,63 @@ const API_KEY = process.env.API_KEY || '';
 export const processRendering = async (
   imageBase64: string,
   userPrompt: string,
-  onStatusChange?: (status: string) => void
+  onStatusChange?: (status: string) => void,
+  textureBase64?: string | null
 ): Promise<string> => {
   if (!API_KEY) {
-    throw new Error("API 密钥缺失，请检查环境变量配置。");
+    throw new Error("API Key not found in environment.");
   }
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   
-  onStatusChange?.("初始化材质识别模型...");
+  onStatusChange?.("Connecting to Gemini 2.5 Flash Image...");
 
+  // Switching back to 2.5 Flash Image as it supports image editing/reference and doesn't require paid key enforcement for basic usage in this context.
   const modelName = 'gemini-2.5-flash-image';
 
-  const contents = {
-    parts: [
-      {
-        inlineData: {
-          mimeType: 'image/png',
-          data: imageBase64,
-        },
+  const parts: any[] = [
+    {
+      inlineData: {
+        mimeType: 'image/png',
+        data: imageBase64,
       },
-      {
-        text: `You are a world-class Architectural Visualization Specialist and Material Scientist. 
-               Your task is to analyze the provided 3D rendering and execute the following material and lighting modifications: ${userPrompt}.
+    }
+  ];
 
-               STRICT WORKFLOW RULES:
-               1. MATERIAL SEGMENTATION: Automatically identify all materials in the scene, specifically: floorings, wall cladding, metallic trims, glass panels, and upholstery.
-               2. REPLACEMENT LOGIC: When a material replacement is requested (e.g., 'replace floor with walnut'), you must precisely map the new high-resolution texture onto the existing geometry, maintaining all perspective, tiling scale, and edge boundaries.
-               3. PHYSICAL ACCURACY: Ensure the new materials interact realistically with the scene's light sources. Reflective surfaces (marble, metal, glass) must show accurate reflections of the surrounding environment.
-               4. STRUCTURE PRESERVATION: Never alter the structural geometry of the building. Windows, doors, and furniture silhouettes must remain sharp and unchanged.
-               5. PHOTOREALISM: Enhance the final output with subtle ambient occlusion, realistic texture maps (normal/specular), and studio-quality post-processing.
+  let systemPrompt = `You are a world-class AI Image Editor and Architectural Visualization specialist. 
+               Your task is to modify the provided image based on these instructions: "${userPrompt}".
 
-               Please deliver a professional, high-fidelity final rendering that looks like it was rendered with an offline engine like V-Ray or Corona.`,
+               CAPABILITIES & PRIORITIES:
+               1. MAGIC EDITING: You can add/remove objects, apply filters, and adjust lighting.
+               2. MATERIAL REPLACEMENT: Identify and replace materials while maintaining perspective and lighting.
+               3. ARCHITECTURAL INTEGRITY: Preserve the core structure and geometry unless explicitly asked to change it.
+               4. SEAMLESS BLENDING: Ensure all new elements or material changes are photorealistically blended.`;
+
+  if (textureBase64) {
+    parts.push({
+      inlineData: {
+        mimeType: 'image/png',
+        data: textureBase64,
       },
-    ],
-  };
+    });
+    systemPrompt += `
+               
+               REFERENCE TEXTURE PROVIDED:
+               The second image provided is a REFERENCE TEXTURE. 
+               You must apply this texture to the specific area/material mentioned in the prompt (e.g. floor, wall, sofa).
+               Map the texture realistically, accounting for perspective, scale, and lighting shadows of the scene.`;
+  }
+
+  parts.push({ text: systemPrompt });
 
   try {
-    onStatusChange?.("正在提取几何体纹理映射...");
+    onStatusChange?.("Processing with Vision Model...");
     const response = await ai.models.generateContent({
       model: modelName,
-      contents,
+      contents: { parts },
     });
 
-    onStatusChange?.("渲染物理材质层...");
+    onStatusChange?.("Finalizing Render...");
     
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) {
@@ -57,7 +70,7 @@ export const processRendering = async (
       }
     }
 
-    throw new Error("AI 无法解析材质映射，请尝试重新选择材质。");
+    throw new Error("AI did not return a generated image. Please try a different prompt.");
   } catch (error) {
     console.error("Gemini Error:", error);
     throw error;
